@@ -1,0 +1,23 @@
+#!/bin/bash
+
+##Get Time Since Boot##
+boottime=$(sysctl -n kern.boottime | awk '{print $4}' | sed 's/,//g')
+unixtime=$(date +%s)
+tsb=$((unixtime - boottime))
+
+##Take TSB in seconds and convert to days##
+time=$(($tsb / 86400))
+
+echo "System has been up for ""$time"" of allowed 14 days"
+
+if [ "$time" -gt 14 ]; then
+		echo "Restart is required. Equal or greater than 14 days since last boot."
+		/usr/local/bin/kandji display-alert --title 'Restart required!' --message "It's been 14 days since last restart.
+		Please restart your computer before signing off today."
+		echo "End of script"
+		exit 1
+	else
+		echo "Restart not required. Time since boot is less than 14 days."
+		echo "End of script"
+		exit 0
+fi
